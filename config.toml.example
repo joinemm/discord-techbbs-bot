@@ -1,0 +1,14 @@
+# Fill this file and rename it to config.toml
+
+owner_id = 133311691852218378
+prefix = "$"
+
+[keys]
+discord_token = ""
+
+[database]
+host = "127.0.0.1"
+port = 3306
+user = ""
+password = ""
+db = "discordbot"

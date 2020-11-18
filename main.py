@@ -1,0 +1,94 @@
+import traceback
+import discord
+import uvloop
+from modules import log, maria, helpcommand, checks
+from modules.config import Config
+from discord.ext import commands
+from time import time
+
+uvloop.install()
+logger = log.get_logger(__name__)
+
+intents = discord.Intents(
+    guilds=True,
+    members=False,  # requires verification
+    bans=False,
+    emojis=False,
+    integrations=False,
+    webhooks=False,
+    invites=False,
+    voice_states=False,
+    presences=False,  # requires verification
+    guild_messages=True,
+    guild_reactions=True,
+    typing=False,
+)
+
+extensions = ["cogs.events", "cogs.commands", "cogs.errorhandler", "cogs.techbbs"]
+
+
+class MyBot(commands.AutoShardedBot):
+    def __init__(self, **kwargs):
+        self.config = Config("config.toml")
+        super().__init__(
+            command_prefix=self.config.prefix, owner_id=self.config.owner_id, **kwargs
+        )
+        self.logger = logger
+        self.start_time = time()
+        self.global_cd = commands.CooldownMapping.from_cooldown(
+            10.0, 60.0, commands.BucketType.member
+        )
+        self.db = maria.MariaDB(self)
+
+    async def close(self):
+        await self.db.cleanup()
+        await super().close()
+
+    async def on_message(self, message):
+        if not bot.is_ready:
+            return
+
+        await super().on_message(message)
+
+
+bot = MyBot(
+    case_insensitive=True,
+    help_command=helpcommand.EmbedHelpCommand(),
+    allowed_mentions=discord.AllowedMentions(everyone=False),
+    description="bot template",
+    intents=intents,
+)
+
+
+@bot.before_invoke
+async def before_any_command(ctx):
+    """Runs before any command."""
+    ctx.time = time()
+    try:
+        await ctx.trigger_typing()
+    except discord.errors.Forbidden:
+        pass
+
+
+@bot.check
+async def cooldown_check(ctx):
+    return await checks.global_cooldown(ctx)
+
+
+def run(bot):
+    """Load extensions and run the bot."""
+    for extension in extensions:
+        try:
+            bot.load_extension(extension)
+            bot.logger.info(f"Imported {extension}")
+        except Exception as error:
+            bot.logger.error(f"Error loading {extension} , aborting")
+            traceback.print_exception(type(error), error, error.__traceback__)
+            quit()
+
+    bot.logger.info("All extensions loaded successfully")
+    bot.run(bot.config.discord_token)
+
+
+if __name__ == "__main__":
+    run(bot)
