@@ -7,15 +7,11 @@ verify_ssl = true
 
 [packages]
 "discord.py" = "*"
-tweepy = "*"
-arrow = "*"
 aiomysql = "*"
 coloredlogs = "*"
 uvloop = "*"
-psutil = "*"
 toml = "*"
 extmenus = {editable = true, git = "https://github.com/joinemm/discord-ext-menus"}
-durations-nlp = "*"
 beautifulsoup4 = "*"
 
 [requires]
