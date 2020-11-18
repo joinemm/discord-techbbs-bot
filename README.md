@@ -1,6 +1,6 @@
-## Discord bot template
+## TechBBS bot
 
-Starting point for a python discord bot
+Tracks new sell listings on TechBBS
 
 ---
 
@@ -8,8 +8,8 @@ Starting point for a python discord bot
 
 Get the source code and setup python environment using pipenv:
 ```
-$ git clone https://joinemm/discord-bot-template
-$ cd discord-bot-template
+$ git clone https://joinemm/techbbs-bott
+$ cd techbbs-bot
 $ pipenv install
 ```
 
